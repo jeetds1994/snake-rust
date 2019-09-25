@@ -9,6 +9,7 @@ use piston::event_loop::*;
 use piston::input::*;
 use glutin_window::GlutinWindow;
 use opengl_graphics::{GlGraphics, OpenGL};
+use std::collections::HashSet;
 use rand::Rng;
 
 use std::collections::LinkedList;
@@ -45,11 +46,21 @@ impl Game {
 
     fn check_for_collision(&mut self) {
         let mut collision_detected = false;
+        let mut snake_piece_positions: HashSet<&(i32, i32)> = HashSet::new();
+
         self.snake.body.iter().for_each(|pos| {
+            snake_piece_positions.insert(pos);
+
             if self.food.pos_x == pos.0 && self.food.pos_y == pos.1 {
                 collision_detected = true;
             }
         });
+
+        
+
+        if snake_piece_positions.len() != self.snake.body.len() {
+            self.end_game();
+        }
 
         if collision_detected {
             self.collision();
@@ -57,7 +68,13 @@ impl Game {
         
     }
 
+    fn end_game(&mut self) {
+
+    }
+
     fn collision(&mut self) {
+
+        // not proud of this collision detection
         let last_node = self.snake.body.pop_back().unwrap();
         self.snake.body.push_back(last_node);
 
