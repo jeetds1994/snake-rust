@@ -40,18 +40,39 @@ impl Game {
 
         self.food.render(&mut self.gl, arg);
 
-        self.check_for_collision();
+        
     }
 
     fn check_for_collision(&mut self) {
-        print!("{:?}", self.snake.body.front());
-        // if self.food.pos_x == self.snake.body.front( && self.food.pos_y == self.snake.body.front().1 {
-        //     print!("collision");
-        // }
+        let mut collision_detected = false;
+        self.snake.body.iter().for_each(|pos| {
+            if self.food.pos_x == pos.0 && self.food.pos_y == pos.1 {
+                collision_detected = true;
+            }
+        });
+
+        if collision_detected {
+            self.collision();
+        }
+        
+    }
+
+    fn collision(&mut self) {
+        let last_node = self.snake.body.pop_back().unwrap();
+        self.snake.body.push_back(last_node);
+
+        let mut new_node = last_node.clone();
+        new_node.1 += 1;
+        self.snake.body.push_back(new_node);
+
+        let mut rng = rand::thread_rng();
+        self.food = Food { pos_x: rng.gen_range(0, 400 / 20), pos_y: rng.gen_range(0, 400 / 20) }
     }
 
     fn update(&mut self) {
         self.snake.update();
+
+        self.check_for_collision();
     }
 
     fn pressed(&mut self, btn: &Button) {
